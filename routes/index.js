@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const passport = require('passport');
-const passwordUtils = require('../lib/passwordUtils');
+const genPassword = require('../lib/passwordUtils').genPassword;
 const connection = require('../config/database');
 const User = connection.models.User;
 
@@ -9,13 +9,27 @@ const User = connection.models.User;
  */
 
  // TODO
- router.post('/login', (req, res, next) => {
-    
- });
+ router.post('/login',passport.authenticate('local',{failureRedirect: '/login-failure',successRedirect: "/login-success"})); // here we don't need callback function to do anything as if false or true we are redirecting to the new route great
 
  // TODO
  router.post('/register', (req, res, next) => {
+    const saltHash = genPassword(req.body.password) // see how to use the custom names for this
 
+    const salt = saltHash.salt
+    const hash = saltHash.hash
+
+    const newUser = new User({
+        username: req.body.username,
+        hash: hash,
+        salt: salt
+    })
+
+    newUser.save()
+    .then((user)=>{
+        console.log(user)
+    })
+
+    res.redirect("/")
  });
 
 
@@ -82,3 +96,5 @@ router.get('/login-failure', (req, res, next) => {
 });
 
 module.exports = router;
+
+// we are doing everything like logout and all using req object and it's fantastic that passport is doing
