@@ -9,8 +9,7 @@ const connection = require('./config/database');
 // Package documentation - https://www.npmjs.com/package/connect-mongo
 const MongoStore = require('connect-mongo')(session);
 
-// Need to require the entire Passport config module so app.js knows about it
-require('./config/passport');
+
 
 /**
  * -------------- GENERAL SETUP ----------------
@@ -31,13 +30,30 @@ app.use(express.urlencoded({extended: true}));
  */
 
 // TODO
+const sessionStore = new MongoStore({
+    mongooseConnection: connection,
+    collection: "sessions"
+})
+
+app.use(session({
+    secret: process.env.SECRET,
+    resave: false,
+    saveUninitialized: true, 
+    store: sessionStore, // store this item at session store or retrieve from here
+    cookie: { // we are storing session id as cookie in browser with expires property with  1 day
+        maxAge: 1000* 60* 60* 24
+    }
+}));
 
 /**
  * -------------- PASSPORT AUTHENTICATION ----------------
  */
+// Need to require the entire Passport config module so app.js knows about it
+require('./config/passport');
 
-app.use(passport.initialize());
-app.use(passport.session());
+app.use(passport.initialize()); // There is the chance that session expires so restart it each time 
+app.use(passport.session()); // to dos with express session middleware , request session persisted in database in sessions collection
+
 
 
 /**
