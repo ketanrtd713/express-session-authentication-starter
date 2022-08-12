@@ -4,6 +4,7 @@ const genPassword = require('../lib/passwordUtils').genPassword;
 const connection = require('../config/database');
 const User = connection.models.User;
 const isAuth = require('./authMiddleware').isAuth
+const isAdmin = require('./authMiddleware').isAdmin
 /**
  * -------------- POST ROUTES ----------------
  */
@@ -21,7 +22,8 @@ const isAuth = require('./authMiddleware').isAuth
     const newUser = new User({
         username: req.body.username,
         hash: hash,
-        salt: salt
+        salt: salt,
+        admin: false // Right now manually check 
     })
 
     newUser.save()
@@ -82,6 +84,10 @@ router.get('/protected-route', isAuth, (req, res, next) => { // pass this isAuth
 
     res.send('<h1>You are authenticated and great to see you on this route</h1><p><a href="/logout">Logout and reload</a></p>');
 });
+
+router.get('/admin-route', isAuth, isAdmin, (req, res, next)=>{
+    res.send("Hey Admin welcome to admin onnly route")
+})
 
 // Visiting this route logs the user out
 router.get('/logout', (req, res, next) => {
