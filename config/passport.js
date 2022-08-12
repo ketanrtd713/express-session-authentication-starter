@@ -15,15 +15,6 @@ const User = connection.models.User; // WOW ??
 // It doesn't matter what database you use 
 // and how you choose verify credentiales but pass values what passport wants
 
-// const verifyCallBack = function(username, password, done) { // done is the function
-//     User.findOne({ username: username }, function (err, user) {
-//       if (err) { return done(err); }
-//       if (!user) { return done(null, false); }
-//       if (!user.verifyPassword(password)) { return done(null, false); }
-//       return done(null, user);
-//     });
-//   }
-
 const verifyCallBack = (username, password, done) =>{
 
     User.findOne({username: username})
@@ -47,7 +38,7 @@ const verifyCallBack = (username, password, done) =>{
 
 const strategy = new LocalStrategy(verifyCallBack)
 
-passport.use(strategy);
+passport.use(strategy); // Here we are using passport 
 
 
 // Now add some code that will be used for user to get into session and get out of the session 
